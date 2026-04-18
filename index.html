@@ -227,7 +227,7 @@
 
     // 配置MD文件列表
     function loadMdFileList() {
-      const mdFiles = ["目录.md"]; 
+      const mdFiles = ["content.md"]; 
       // 多文件示例：["目录.md", "关于我.md", "项目.md", "笔记.md"]
       renderList(mdFiles);
     }
@@ -243,7 +243,7 @@
         fileList.appendChild(item);
       });
       // 默认加载目录
-      loadMarkdown("目录.md");
+      loadMarkdown("content.md");
     }
 
     // 加载并渲染 md
