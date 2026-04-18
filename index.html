@@ -15,33 +15,33 @@
 
     body {
       display: flex;
-      flex-direction: column; /* 改为纵向布局 */
+      flex-direction: column;
       min-height: 100vh;
       background: #f0f2f5;
-      color: #d8417b;
       line-height: 1.6;
     }
 
-    /* 顶部导航栏（原侧边栏改造） */
+    /* 顶部导航栏 */
     .header {
       width: 100%;
       background: #c95682;
       color: white;
       padding: 1rem 2rem;
-      position: sticky; /* 固定在顶部 */
+      position: sticky;
       top: 0;
       z-index: 100;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
-    /* 顶部内容容器 */
+    /* 顶部布局：头像信息 + 目录列表 + 联系方式 */
     .header-container {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 2rem;
+      gap: 1.5rem;
+      flex-wrap: wrap; /* 自动换行适配移动端 */
     }
 
     /* 头像 */
@@ -58,6 +58,7 @@
       display: flex;
       align-items: center;
       gap: 1rem;
+      flex-shrink: 0;
     }
 
     .profile-info h1 {
@@ -66,41 +67,49 @@
     }
 
     .profile-info .desc {
-      color: #a0aec0;
+      color: #e0e0e0;
       font-size: 0.9rem;
     }
 
-    
-    
+    /* ========== 顶部文件目录列表 ========== */
+    .file-list {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      flex: 1;
+      justify-content: center;
+    }
 
     .file-item {
-      padding: 0.6rem 1rem;
-      background: #4a5568;
+      padding: 0.6rem 1.2rem;
+      background: rgba(255,255,255,0.2);
       border-radius: 6px;
       cursor: pointer;
       transition: 0.2s;
       font-size: 0.95rem;
-      white-space: nowrap; /* 不换行 */
+      white-space: nowrap;
+      color: white;
     }
 
     .file-item:hover {
-      background: #5a6980;
+      background: rgba(255,255,255,0.3);
     }
 
     .file-item.active {
-      background: #7b68ee;
+      background: #8848db;
       color: white;
     }
 
     /* 联系方式 */
     .contact {
       font-size: 0.9rem;
-      color: #cbd5e0;
-      white-space: nowrap;
+      color: #fff;
+      flex-shrink: 0;
     }
     .contact a {
-      color: #9f7aea;
+      color: #f391bf;
       text-decoration: none;
+      font-weight: 500;
     }
     .contact p {
       margin: 0.2rem 0;
@@ -109,7 +118,7 @@
     /* 主内容区 */
     .main {
       flex: 1;
-      padding: 2rem 2rem;
+      padding: 2rem;
       max-width: 1200px;
       margin: 0 auto;
       width: 100%;
@@ -161,11 +170,9 @@
     @media (max-width: 768px) {
       .header-container {
         flex-direction: column;
+        align-items: center;
+        text-align: center;
         gap: 1rem;
-        align-items: flex-start;
-      }
-      .contact {
-        margin-top: 0.5rem;
       }
       .main {
         padding: 1.5rem 1rem;
@@ -174,37 +181,35 @@
         padding: 1.5rem;
         min-height: 400px;
       }
-      .file-list {
-        width: 100%;
-      }
     }
   </style>
 </head>
 
 <body>
-  <!-- 顶部导航栏（原侧边栏） -->
+  <!-- 顶部导航栏：集成 头像 + 目录列表 + 联系方式 -->
   <div class="header">
     <div class="header-container">
       <!-- 个人信息 -->
       <div class="profile">
-        <img class="avatar" src="touxiang.jpg" alt="kima头像">
+        <img class="avatar" src="touxiang.png" alt="kima头像">
         <div class="profile-info">
           <h1>Kima</h1>
           <p class="desc">wait for you...</p>
         </div>
       </div>
 
-      
+      <!-- ========== 目录列表 移至顶部 ========== -->
+      <div id="fileList" class="file-list"></div>
 
       <!-- 联系方式 -->
       <div class="contact">
         <p>GitHub：<a href="https://github.com/Aydin0118" target="_blank">Aydin0118</a></p>
-        <p>邮箱：<a href="mailto:example@mail.com">2406265572@qq.com</a></p>
+        <p>邮箱：<a href="mailto:2406265572@qq.com">2406265572@qq.com</a></p>
       </div>
     </div>
   </div>
 
-  <!-- 主内容 -->
+  <!-- 主内容：仅保留内容展示区（删除了多余容器） -->
   <div class="main">
     <div id="content">
       <span class="tip">正在加载目录...</span>
@@ -220,8 +225,12 @@
     const contentDiv = document.getElementById("content");
     const fileList = document.getElementById("fileList");
 
-   
-    
+    // 配置MD文件列表
+    function loadMdFileList() {
+      const mdFiles = ["目录.md"]; 
+      // 多文件示例：["目录.md", "关于我.md", "项目.md", "笔记.md"]
+      renderList(mdFiles);
+    }
 
     // 渲染文章列表
     function renderList(files) {
@@ -233,28 +242,29 @@
         item.onclick = () => loadMarkdown(file);
         fileList.appendChild(item);
       });
-
-      // 默认打开目录.md
+      // 默认加载目录
       loadMarkdown("目录.md");
     }
 
     // 加载并渲染 md
     async function loadMarkdown(file) {
+      document.querySelectorAll('.file-item').forEach(item => {
+        item.classList.toggle('active', item.textContent === file.replace('.md', ''));
+      });
+      
       contentDiv.innerHTML = "加载中...";
       try {
         const res = await fetch(file);
         if (!res.ok) throw new Error("文件不存在或已删除");
         const text = await res.text();
         contentDiv.innerHTML = marked.parse(text);
-
-        // 核心：自动让所有 .md 链接在页面内渲染
         bindMdLinks();
       } catch (err) {
         contentDiv.innerHTML = `<span class="error">⚠️ ${file} 不存在或无法加载</span>`;
       }
     }
 
-    // 自动绑定所有 md 链接
+    // 绑定MD内部链接
     function bindMdLinks() {
       document.querySelectorAll('#content a[href$=".md"]').forEach(link => {
         link.onclick = (e) => {
