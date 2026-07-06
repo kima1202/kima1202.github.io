@@ -1,854 +1,508 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KimaWeb | 主页 & 照片空间</title>
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    :root {
-      --primary: #4472c4;
-      --secondary: #6e96c4;
-      --accent: #afd2fb;
-      --bg: #f5f6fa;
-      --card-bg: #fff;
-      --border: #e5e6eb;
-      --shadow: 0 4px 18px 0 rgba(30,40,90,0.06);
-      --radius-md: 12px;
-      --radius-lg: 18px;
-      --text-main: #232b3a;
-      --text-sub: #788199;
-      --file-icon: #99b3e6;
-      --folder-icon: #fcc940;
-      --danger: #cb2431;
-      --danger-bg: #fff3f1;
-    }
-    * {
-      margin: 0; padding: 0; box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-    body {
-      background: var(--bg);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex; flex-direction: column;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kima - 个人主页</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { DEFAULT: '#6a11cb', dark: '#a855f7' },
+                        secondary: { DEFAULT: '#2575fc', dark: '#60a5fa' },
+                    }
+                },
+            }
+        }
+    </script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { transition: background-color 0.3s ease; background-color: #f9fafb; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body.dark { background-color: #111827; }
 
-    /* 顶部导航栏 - 缩小宽度 */
-.header {
-  width: 100vw;
-  min-width: 100vw;
-  left: 0;
-  top: 0;
-  margin: 0;
-  position: fixed;  /* 固定于最顶部 */
-  z-index: 999;
-  background: var(--primary);
-  color: #fff;
-  padding: 1rem 0;
-  box-shadow: 0 4px 18px 0 rgba(30,40,90,0.06);
-  border-radius: 0 0 12px 12px;
-}
-    .header-container {
-      max-width: 1200px; margin: 0 auto;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 2rem; flex-wrap: wrap;
-    }
-    .profile {
-      display: flex; align-items: center; gap: 1rem; flex-shrink: 0;
-    }
-    .avatar {
-      width: 54px; height: 54px; border-radius: 50%; object-fit: cover;
-      border: 3px solid #dbeafe; background: #fff;
-      box-shadow: 0 2px 8px #bdd6fa60;
-    }
-    .profile-info h1 {
-      font-size: 1.24rem; font-weight: 600; margin-bottom: 0.2rem;
-    }
-    .profile-info .desc {
-      color: #d1e3fa; font-size: .97rem; font-weight: 500;
-    }
-    
-    /* 将入口按钮移到导航栏中间 */
-    .nav-buttons {
-      display: flex; gap: 1rem; flex: 1; justify-content: center;
-    }
-    .nav-btn {
-      padding: 0.55rem 1.1rem;
-      background: rgba(255,255,255,0.15);
-      border-radius: 7px;
-      cursor: pointer;
-      font-size: .99rem;
-      border: 1px solid rgba(255,255,255,0.2);
-      color: #fff;
-      transition: background .15s, color .15s, box-shadow .14s;
-      box-shadow: 0 1.5px 6px rgba(0,0,0,0.1);
-      display: flex; align-items: center; gap: 0.5rem;
-    }
-    .nav-btn:hover, .nav-btn.active {
-      background: rgba(255,255,255,0.3);
-      color: #fff;
-    }
-    
-    .contact {
-      font-size: .93rem; color: #f1f7fe; min-width: 165px;
-      text-align: right;
-    }
-    .contact a { color: #e8f1fc; text-decoration: none; font-weight: 500; }
-    .contact a:hover { color: #bbdcfa; }
-    
-    .main {
-      flex: 1; width: 100%; max-width: 1200px; margin: 0 auto; padding: 1.5rem;
-      box-sizing: border-box;
-      display: flex; flex-direction: column; gap: 2.2rem;
-      /* 解决顶部遮挡问题，默认给个较大padding-top，后用JS适配 */
-      padding-top: 90px;
-      transition: padding-top 0.2s;
-    }
+        .bg-container { position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; overflow:hidden; }
+        .bg-image { position:absolute; top:0; left:0; width:100%; height:100%; background-image:url('background.jpg'); background-size:cover; background-position:center; filter:blur(20px); transform:scale(1.1); }
+        .bg-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background-color:#fff; opacity:0.7; }
+        .dark .bg-overlay { background-color:#111827; }
 
-    /* 通用卡片 */
-    .card {
-      background: var(--card-bg);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow);
-      border: 1.5px solid var(--border);
-      padding: 2rem 2.5rem;
-      margin-bottom: 1rem;
-    }
+        .glass-panel {
+            background:rgba(255,255,255,0.6); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+            border:1px solid rgba(255,255,255,0.3); box-shadow:0 8px 32px 0 rgba(31,38,135,0.1);
+            position:relative; overflow:hidden;
+        }
+        .glass-panel::after { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,#6a11cb,transparent); animation:border-glow 4s ease-in-out infinite; }
+        .glass-panel::before { content:''; position:absolute; bottom:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,#2575fc,transparent); animation:border-glow 4s ease-in-out infinite reverse; }
+        .dark .glass-panel::after { background:linear-gradient(90deg,transparent,#a855f7,transparent); }
+        .dark .glass-panel::before { background:linear-gradient(90deg,transparent,#60a5fa,transparent); }
+        .dark .glass-panel { background:rgba(17,24,39,0.6); border:1px solid rgba(255,255,255,0.1); box-shadow:0 8px 32px 0 rgba(0,0,0,0.3); }
+        @keyframes border-glow { 0%,100%{opacity:0.3;} 50%{opacity:1;} }
 
-    /* 主页内容 */
-    #content {
-      padding: 0;
-      border-radius: var(--radius-lg);
-      min-height: 300px;
-      background: transparent;
-      box-shadow: none;
-      border: none;
-    }
-    #content h1, #content h2, #content h3 {
-      margin: 1.2rem 0 0.8rem; color: var(--primary);
-    }
-    #content p { margin: 0.7rem 0; }
-    #content a { color: var(--primary); text-decoration: underline; }
-    #content code {
-      background: #f8fafc;
-      padding: 0.13em .45em;
-      border-radius: 4px;
-      color: #4064a2;
-      font-size: .96em;
-    }
-    #content pre {
-      background: #f5f5fa;
-      color: #34414d;
-      border-radius: 7px;
-      padding: 1em;
-      margin: 1em 0;
-      font-size: .98em;
-      overflow-x: auto;
-      border: 1.3px solid #e7edf4;
-    }
+        .bg-gradient-custom { background:linear-gradient(135deg,#6a11cb,#2575fc); }
+        .avatar-glow { animation:glow 3s ease-in-out infinite alternate; }
+        @keyframes glow { from{box-shadow:0 0 5px rgba(106,17,203,0.3);} to{box-shadow:0 0 20px rgba(106,17,203,0.8);} }
+        .card-hover { transition:all 0.3s ease; }
+        .card-hover:hover { transform:translateY(-5px); box-shadow:0 20px 25px -5px rgba(0,0,0,0.1),0 10px 10px -5px rgba(0,0,0,0.04); }
+        .animate-fade-in { animation:fadeIn 0.8s ease-in; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+        .repo-item { transition:all 0.3s ease; }
+        .repo-item:hover { transform:translateX(5px); }
+        .tech-icon { filter:drop-shadow(0 0 5px rgba(106,17,203,0.5)); }
 
-    /* 照片空间样式 */
-    .photo-box .input-group {
-      display: flex; gap: 10px; margin: 15px 0 20px 0;
-    }
-    .photo-box input[type="text"] {
-      flex: 1;
-      padding: 11px 15px;
-      font-size: 16px;
-      border: 2px solid var(--border);
-      border-radius: 8px;
-      transition: border .16s, box-shadow .16s;
-      background: #f5f7fa;
-    }
-    .photo-box input[type="text"]:focus {
-      border-color: var(--primary);
-      outline: none;
-      background: #e9f0fb;
-      box-shadow: 0 0 6px 1px #bdd6fa55;
-    }
-    .photo-box button {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 11px 23px;
-      font-size: 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background .16s, box-shadow .17s;
-      font-weight: 500;
-      box-shadow: 0 2px 8px #bdd6fa33;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .photo-box button:hover {
-      background: #355ba5;
-    }
-    .breadcrumb {
-      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-      margin-bottom: 15px; padding: 10px 18px;
-      background: #f1f5fa;
-      border-radius: 8px;
-      font-size: .97rem;
-      border: 1px solid #e7edf4;
-    }
-    .breadcrumb a {
-      color: var(--primary); text-decoration: none; display: flex; align-items: center;
-    }
-    .breadcrumb a:hover { text-decoration: underline; }
-    .breadcrumb .separator { color: #adb1ba; }
-    .view-options { display: flex; gap: 10px; margin-bottom: 18px; }
-    .view-option {
-      background: #f2f6fe; border: 1px solid #e3e7ed;
-      border-radius: 6px; padding: 8px 16px;
-      cursor: pointer;
-      font-weight: 500; color: #586a92;
-      transition: background .12s;
-    }
-    .view-option.active, .view-option:hover {
-      background: #dbeafe;
-      border-color: var(--primary);
-      color: var(--primary);
-    }
+        /* Markdown 内容样式 */
+        #readme-content h1 { font-size:2.25rem; font-weight:700; margin:2rem 0 1rem; padding-bottom:0.75rem; border-bottom:1px solid #d1d5db; color:#111827; }
+        #readme-content h2 { font-size:1.875rem; font-weight:700; margin:1.5rem 0 0.75rem; padding-bottom:0.5rem; border-bottom:1px solid #d1d5db; color:#111827; }
+        #readme-content h3 { font-size:1.5rem; font-weight:700; margin:1.25rem 0 0.5rem; color:#111827; }
+        #readme-content p { margin-bottom:1rem; color:#374151; line-height:1.75; }
+        #readme-content ul { list-style:disc; margin:0 0 1rem 1rem; color:#374151; }
+        #readme-content ol { list-style:decimal; margin:0 0 1rem 1rem; color:#374151; }
+        #readme-content code { background:#f3f4f6; padding:0.125rem 0.375rem; border-radius:0.25rem; color:#dc2626; font-family:monospace; font-size:0.875rem; }
+        #readme-content pre { background:#111827; color:#f9fafb; padding:1rem; border-radius:0.5rem; overflow-x:auto; margin-bottom:1rem; }
+        #readme-content pre code { background:transparent; color:inherit; padding:0; }
+        #readme-content a { color:#2563eb; text-decoration:underline; font-weight:600; }
+        #readme-content img { max-width:100%; height:auto; border-radius:0.5rem; margin:1rem 0; box-shadow:0 4px 6px rgba(0,0,0,0.1); }
+        #readme-content blockquote { border-left:4px solid #9ca3af; background:#f3f4f6; padding:0.5rem 1rem; margin:1rem 0; color:#374151; font-style:italic; }
+        #readme-content table { width:100%; border-collapse:collapse; margin:1rem 0; }
+        #readme-content th { background:#f3f4f6; border:1px solid #d1d5db; padding:0.5rem 1rem; font-weight:600; text-align:left; color:#111827; }
+        #readme-content td { border:1px solid #d1d5db; padding:0.5rem 1rem; color:#374151; }
 
-    /* 文件/图片网格 */
-    .file-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-      gap: 14px;
-    }
-    .file-item {
-      background: #fafbfc;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 13px 13px 11px 13px;
-      transition: box-shadow 0.14s, border .12s, transform 0.13s;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(30,40,90,.06);
-      min-height: 90px;
-      display: flex; flex-direction: column; align-items: center;
-    }
-    .file-item:hover {
-      box-shadow: var(--shadow);
-      border-color: var(--primary);
-      transform: translateY(-2px) scale(1.03);
-    }
-    .file-thumbnail {
-      width: 98%; height: 140px; object-fit: cover; border-radius: 6px;
-      background: #e7eaf2;
-      margin-bottom: 11px;
-      display: flex; align-items: center; justify-content: center;
-      overflow: hidden;
-    }
-    .file-thumbnail img {
-      width: 100%; height: 100%; object-fit: cover;
-      border-radius: 6px; border: 1px solid #e2e4ec;
-      transition: box-shadow .11s, transform .13s, border-color .13s;
-    }
-    .file-item:hover .file-thumbnail img {
-      border-color: var(--primary);
-      box-shadow: 0 4px 16px #bdd6fa44;
-      transform: scale(1.04);
-    }
-    .file-icon {
-      font-size: 27px; margin-bottom: 8px; color: var(--file-icon);
-    }
-    .folder-icon { color: var(--folder-icon); }
-    .file-name {
-      font-weight: 600; font-size: 1rem;
-      margin-bottom: 3px; color: #1d2a48; word-break: break-all;
-      text-align: center;
-    }
-    .file-size {
-      color: #a1a9bb; font-size: 13px;
-    }
-    .file-actions {
-      position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; opacity: 0;
-      transition: opacity .13s;
-    }
-    .file-item:hover .file-actions { opacity: 1; }
-    .file-action {
-      background: #e3e8f0; border: 1px solid #e1e5ee; border-radius: 4px;
-      width: 28px; height: 28px; display: flex; align-items: center; 
-      justify-content: center; cursor: pointer; color: #4e6a95;
-      transition: background .13s, color .13s;
-    }
-    .file-action:hover {
-      background: var(--primary); color: #fff;
-    }
-    .list-thumbnail {
-      width: 48px; height: 48px; object-fit: cover; border-radius: 3px; margin-right: 8px;
-      border: 1px solid #e6eefd;
-    }
-    /* 列表 */
-    .file-list-view { width: 100%; border-collapse: collapse; }
-    .file-list-view th,
-    .file-list-view td {
-      padding: 9px 10px;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
-    .file-list-view th { background: #f1f5fa; font-weight: 600; font-size: .99rem; }
-    .file-list-view tr:hover { background: #f7faff; }
-    .file-list-name { display: flex; align-items: center; gap: 6px; }
-    .file-list-actions { display: flex; gap: 8px; }
-    .file-list-action {
-      padding: 5.5px 10px;
-      background: #e3e8f0;
-      border: 1px solid #e1e5ee;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.95rem;
-      color: #4e6a95;
-      font-weight: 500;
-      display: flex; align-items: center; gap: 4px;
-      transition: background .13s, color .13s;
-    }
-    .file-list-action:hover {
-      background: var(--primary); color: #fff; 
-    }
+        /* 照片空间样式 */
+        .breadcrumb { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:15px; padding:10px 18px; background:#f1f5fa; border-radius:8px; font-size:0.97rem; border:1px solid #e7edf4; }
+        .breadcrumb a { color:#6a11cb; text-decoration:none; display:flex; align-items:center; cursor:pointer; }
+        .breadcrumb a:hover { text-decoration:underline; }
+        .breadcrumb .sep { color:#adb1ba; }
+        .view-options { display:flex; gap:10px; margin-bottom:18px; }
+        .view-opt { background:#f2f6fe; border:1px solid #e3e7ed; border-radius:6px; padding:8px 16px; cursor:pointer; font-weight:500; color:#586a92; transition:background 0.12s; }
+        .view-opt.active, .view-opt:hover { background:#dbeafe; border-color:#6a11cb; color:#6a11cb; }
+        .file-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:14px; }
+        .file-item { background:#fafbfc; border:1px solid #e5e6eb; border-radius:12px; padding:13px; transition:box-shadow 0.14s,border 0.12s,transform 0.13s; cursor:pointer; position:relative; overflow:hidden; box-shadow:0 2px 8px rgba(30,40,90,0.06); min-height:90px; display:flex; flex-direction:column; align-items:center; }
+        .file-item:hover { box-shadow:0 4px 18px rgba(30,40,90,0.06); border-color:#6a11cb; transform:translateY(-2px) scale(1.03); }
+        .file-thumb { width:98%; height:140px; object-fit:cover; border-radius:6px; background:#e7eaf2; margin-bottom:11px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+        .file-thumb img { width:100%; height:100%; object-fit:cover; border-radius:6px; border:1px solid #e2e4ec; transition:box-shadow 0.11s,transform 0.13s; }
+        .file-item:hover .file-thumb img { border-color:#6a11cb; box-shadow:0 4px 16px rgba(189,214,250,0.27); transform:scale(1.04); }
+        .ficon { font-size:27px; margin-bottom:8px; color:#99b3e6; }
+        .ficon.folder { color:#fcc940; }
+        .fname { font-weight:600; font-size:1rem; margin-bottom:3px; color:#1d2a48; word-break:break-all; text-align:center; }
+        .fsize { color:#a1a9bb; font-size:13px; }
+        .fact { position:absolute; top:10px; right:10px; display:flex; gap:8px; opacity:0; transition:opacity 0.13s; }
+        .file-item:hover .fact { opacity:1; }
+        .fabtn { background:#e3e8f0; border:1px solid #e1e5ee; border-radius:4px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#4e6a95; transition:background 0.13s,color 0.13s; }
+        .fabtn:hover { background:#6a11cb; color:#fff; }
+        .list-thumb { width:48px; height:48px; object-fit:cover; border-radius:3px; margin-right:8px; border:1px solid #e6eefd; }
+        .file-list { width:100%; border-collapse:collapse; }
+        .file-list th, .file-list td { padding:9px 10px; text-align:left; border-bottom:1px solid #e5e6eb; }
+        .file-list th { background:#f1f5fa; font-weight:600; font-size:0.99rem; }
+        .file-list tr:hover { background:#f7faff; }
+        .flname { display:flex; align-items:center; gap:6px; }
+        .flact { padding:5.5px 10px; background:#e3e8f0; border:1px solid #e1e5ee; border-radius:4px; cursor:pointer; font-size:0.95rem; color:#4e6a95; font-weight:500; display:flex; align-items:center; gap:4px; transition:background 0.13s,color 0.13s; }
+        .flact:hover { background:#6a11cb; color:#fff; }
+        .bkbtn { display:inline-flex; align-items:center; gap:8px; margin-bottom:18px; padding:9px 15px; background:#eef5fe; color:#6a11cb; text-decoration:none; border-radius:6px; border:1px solid #e2e8f5; font-size:0.99rem; transition:background 0.12s; cursor:pointer; }
+        .bkbtn:hover { background:#ccdffe; color:#293964; }
+        .perr { color:#cb2431; background:#fff3f1; border-radius:6px; border:1.3px solid #ffd4cf; padding:13px 17px; margin-bottom:18px; font-size:1.08rem; }
+        .pload { text-align:center; padding:38px 0; color:#8da1c5; font-size:17px; }
+        .pload i { font-size:33px; margin-bottom:11px; color:#6a11cb; display:block; }
 
-    /* 图片大图模态 */
-    .modal {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(30,40,90,0.93); z-index: 10000; overflow: hidden;
-      padding: 0; margin: 0;
-    }
-    .modal-content {
-      position: absolute; top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      max-width: 95%; max-height: 95%;
-      object-fit: contain;
-      background: #fff; border-radius: 7px; box-shadow: var(--shadow);
-      outline: 1.5px solid #e7eaf0;
-      transition: opacity .2s ease-in-out;
-    }
-    .modal-close, .modal-nav {
-      position: fixed; z-index: 10001;
-      border: none; background: #fff;
-      color: var(--primary); font-size: 23px;
-      border-radius: 50%; width: 43px; height: 43px;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 3px 12px #bdd6fa55;
-      cursor: pointer; transition: background .13s;
-    }
-    .modal-close { top: 11px; right: 15px; font-size: 28px; }
-    .modal-caption {
-      position: fixed; bottom: 13px; left: 0; right: 0; text-align: center;
-      color: var(--primary); background: #fffefc; padding: 12px; font-size: 17px; border-radius: 7px; z-index: 10001;
-      box-shadow: 0 2px 10px #bdd6fa28;
-      margin: 0 32vw;
-    }
-    .modal-nav {
-      top: 50%; transform: translateY(-50%);
-      background: #f5f7fa88;
-    }
-    .modal-prev { left: 15px; }
-    .modal-next { right: 15px; }
-    .modal-close:hover, .modal-nav:hover { background: #dbeafe; }
-
-    /* 错误与加载 */
-    .error {
-      color: #cb2431;
-      background: #fff3f1;
-      border-radius: 6px;
-      border: 1.3px solid #ffd4cf;
-      padding: 13px 17px;
-      margin-bottom: 18px;
-      font-size: 1.08rem;
-    }
-    .loading {
-      text-align: center; padding: 38px 0; color: #8da1c5; font-size: 17px;
-    }
-    .loading i { font-size: 33px; margin-bottom: 11px; color: var(--primary);}
-    .back-button {
-      display: inline-flex; align-items: center; gap: 8px; margin-bottom: 18px;
-      padding: 9px 15px; background: #eef5fe; color: var(--primary);
-      text-decoration: none; border-radius: 6px; border: 1px solid #e2e8f5;
-      font-size: .99rem; transition: background .12s;
-    }
-    .back-button:hover { background: #ccdffe; color: #293964; }
-
-    /* 底部版权 */
-    .footer {
-      text-align: center; margin: 2rem 0 1.1rem 0;
-      color: #b2b9c7; font-size: 0.93rem;
-      letter-spacing: .01em; opacity: .90;
-      font-family: inherit;
-    }
-    @media (max-width: 850px) {
-      .header { width: 90%; }
-      .main { padding: 0.5rem; }
-      .profile-info h1 { font-size: 1.1rem; }
-      .card { padding: 1.1rem 0.5rem; }
-    }
-    @media (max-width: 600px) {
-      .header { width: 95%; padding: 0.8rem 0.5rem; }
-      .main { gap: 1.1rem; }
-      .profile { gap: .5rem;}
-      .avatar { width: 41px; height: 41px; }
-      .nav-buttons { flex-direction: column; gap: 0.5rem; }
-      .card { padding: .7rem .31rem; }
-      .breadcrumb { font-size: .90rem;}
-      .modal-caption { font-size: 13px; margin: 0 6vw; }
-      .modal-prev, .modal-next, .modal-close { width: 33px; height: 33px; font-size: 17px;}
-      .file-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+        .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:10000; }
+        .modal-img { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); max-width:95%; max-height:95%; object-fit:contain; border-radius:7px; }
+        .modal-close, .modal-nav { position:fixed; z-index:10001; border:none; background:rgba(255,255,255,0.9); color:#6a11cb; font-size:23px; border-radius:50%; width:43px; height:43px; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 12px rgba(0,0,0,0.3); cursor:pointer; }
+        .modal-close { top:11px; right:15px; font-size:28px; }
+        .modal-cap { position:fixed; bottom:13px; left:0; right:0; text-align:center; color:#fff; background:rgba(0,0,0,0.7); padding:12px; font-size:17px; border-radius:7px; z-index:10001; margin:0 20vw; }
+        .modal-nav { top:50%; transform:translateY(-50%); }
+        .modal-prev { left:15px; }
+        .modal-next { right:15px; }
+        .modal-close:hover, .modal-nav:hover { background:#dbeafe; }
+    </style>
 </head>
 <body>
-  <!-- 顶部导航栏 - 缩小宽度 -->
-  <div class="header">
-    <div class="header-container">
-      <div class="profile">
-        <a href="https://github.com/kima1202" target="_blank" style="text-decoration:none;display:inline-block;">
-          <img class="avatar" src="touxiang.jpg" alt="kima头像">
-        </a>
-        <div class="profile-info">
-         
-          <h1>Kima</h1>
-          <p class="desc">wait for you...</p>
-        </div>
-      </div>
-      
-      <!-- 将入口按钮移到导航栏中间 -->
-      <div class="nav-buttons">
-        <div class="nav-btn active" id="nav-home-btn">
-          <i class="fa fa-home"></i> 主页
-        </div>
-        <div class="nav-btn" id="nav-photo-btn">
-          <i class="fa fa-images"></i> 照片空间
-        </div>
-      </div>
-      
-      <div class="contact">
-        <p>GitHub：<a href="https://github.com/kima1202" target="_blank">kima1202</a></p>
-        <p>邮箱：<a href="mailto:2406265572@qq.com">2406265572@qq.com</a></p>
-      </div>
-    </div>
-  </div>
-  
-  <div class="main">
-    <!-- 主页内容卡片 -->
-    <div class="card" id="home-card">
-      <div id="content">
-        <span class="loading">正在加载目录...</span>
-      </div>
-      <div class="footer">
-        © 2025 - 2026 AydinWeb | 保留所有权利
-      </div>
-    </div>
-    
-    <!-- 照片空间功能卡片 -->
-    <div class="card photo-box" id="photo-card" style="display:none;">
-      <div class="input-group">
-        <input type="text" id="repo-input" placeholder="输入GitHub仓库地址，例如: https://github.com/username/repository" value="https://github.com/whereyy/">
-        <button id="load-btn"><i class="fas fa-folder-open"></i> 加载仓库</button>
-      </div>
-      <div id="content-area" class="content-area">
-        <div class="loading">
-          <i class="fas fa-spinner fa-spin"></i>
-          <p>请输入GitHub仓库URL并点击加载按钮开始浏览文件</p>
-        </div>
-      </div>
-    </div>
-  </div>
+    <div class="bg-container"><div class="bg-image"></div><div class="bg-overlay"></div></div>
 
-  <!-- 大图预览模态框 -->
-  <div id="image-modal" class="modal">
-    <button class="modal-close" title="关闭">&times;</button>
-    <button class="modal-nav modal-prev" title="上一张"><i class="fas fa-chevron-left"></i></button>
-    <button class="modal-nav modal-next" title="下一张"><i class="fas fa-chevron-right"></i></button>
-    <img class="modal-content" id="modal-image" alt="">
-    <div class="modal-caption" id="modal-caption"></div>
-  </div>
-
-  <script>
-    // ---- 顶部遮挡自适应，自动设置.main的padding-top ----
-    function adjustMainPadding() {
-      const header = document.querySelector('.header');
-      const main = document.querySelector('.main');
-      if (header && main) {
-        const headerStyle = window.getComputedStyle(header);
-        // header.offsetHeight能拿到outline以外的真实高度
-        main.style.paddingTop = (header.offsetHeight + 12) + 'px';
-      }
-    }
-    window.addEventListener('DOMContentLoaded', adjustMainPadding);
-    window.addEventListener('resize', adjustMainPadding);
-
-    // ---- 导航按钮切换 ----
-    const navHomeBtn = document.getElementById('nav-home-btn');
-    const navPhotoBtn = document.getElementById('nav-photo-btn');
-    const homeCard = document.getElementById('home-card');
-    const photoCard = document.getElementById('photo-card');
-    
-    function switchToHome() {
-      navHomeBtn.classList.add('active');
-      navPhotoBtn.classList.remove('active');
-      homeCard.style.display = '';
-      photoCard.style.display = 'none';
-    }
-    
-    function switchToPhoto() {
-      navPhotoBtn.classList.add('active');
-      navHomeBtn.classList.remove('active');
-      homeCard.style.display = 'none';
-      photoCard.style.display = '';
-    }
-    
-    navHomeBtn.onclick = switchToHome;
-    navPhotoBtn.onclick = switchToPhoto;
-
-    // ---- 主页 Markdown 加载 ----
-    const contentDiv = document.getElementById("content");
-    // 配置MD文件列表
-    function loadMdFileList() {
-      const mdFiles = ["content.md"];
-      renderList(mdFiles);
-    }
-    function renderList(files) {
-      // 创建文件列表（如果需要显示的话）
-      // 这里我们只是加载默认的content.md
-      loadMarkdown(files[0]);
-    }
-    async function loadMarkdown(file) {
-      contentDiv.innerHTML = "<span class='loading'>加载中...</span>";
-      try {
-        const res = await fetch(file);
-        if (!res.ok) throw new Error("文件不存在或已删除");
-        const text = await res.text();
-        contentDiv.innerHTML = marked.parse(text);
-        bindMdLinks();
-      } catch (err) {
-        contentDiv.innerHTML = `<span class="error">⚠️ ${file} 不存在或无法加载</span>`;
-      }
-    }
-    function bindMdLinks() {
-      document.querySelectorAll('#content a[href$=".md"]').forEach(link => {
-        link.onclick = (e) => {
-          e.preventDefault();
-          const file = link.getAttribute("href");
-          loadMarkdown(file);
-        };
-      });
-    }
-    loadMdFileList();
-
-    // ---- 照片空间 功能 ----
-    const loadBtn = document.getElementById('load-btn');
-    const repoInput = document.getElementById('repo-input');
-    const contentArea = document.getElementById('content-area');
-    const imageModal = document.getElementById('image-modal');
-    const modalImage = document.getElementById('modal-image');
-    const modalCaption = document.getElementById('modal-caption');
-    const modalClose = document.querySelector('.modal-close');
-    const modalPrev = document.querySelector('.modal-prev');
-    const modalNext = document.querySelector('.modal-next');
-    let currentImages = [];
-    let currentImageIndex = 0;
-    let currentView = 'grid';
-    let currentPath = '';
-    let currentUsername = '';
-    let currentRepo = '';
-    // 页面加载时自动加载示例仓库
-    setTimeout(() => {
-      loadRepoContents('whereyy', 'z-z', '');
-    }, 1000);
-
-    loadBtn.addEventListener('click', function() {
-      const repoUrl = repoInput.value.trim();
-      if (!repoUrl) return showError('请输入GitHub仓库URL');
-      const match = repoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
-      if (!match) return showError('无效的GitHub仓库URL');
-      const username = match[1];
-      const repo = match[2].replace(/\.git$/, '');
-      loadRepoContents(username, repo, '');
-    });
-    function showError(text) {
-      contentArea.innerHTML = `<div class="error">${text}</div>`;
-    }
-    function loadRepoContents(username, repo, path) {
-      contentArea.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>加载中...</p></div>';
-      currentUsername = username;
-      currentRepo = repo;
-      currentPath = path;
-      const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
-      fetch(apiUrl)
-        .then(response => {
-          if (!response.ok) throw new Error('无法访问仓库，可能是私有仓库或不存在');
-          return response.json();
-        })
-        .then(data => {
-          if (Array.isArray(data)) {
-            displayFileList(data, username, repo, path);
-          } else if (data.type === 'file') {
-            displayFileContent(data, username, repo, path);
-          }
-        })
-        .catch(error => { showError(error.message); });
-    }
-    function displayFileList(files, username, repo, path) {
-      const directories = files.filter(item => item.type === 'dir');
-      const fileItems = files.filter(item => item.type === 'file');
-      const imageFiles = fileItems.filter(item => isImageFile(item.name));
-      currentImages = imageFiles.map((image, index) => ({
-        ...image,
-        index: index,
-        downloadUrl: `https://raw.githubusercontent.com/${username}/${repo}/main/${image.path}`
-      }));
-      let html = "";
-
-      // 面包屑
-      if (path) {
-        const pathParts = path.split('/').filter(Boolean);
-        html += '<div class="breadcrumb">';
-        html += `<a href="javascript:void(0)" data-path=""><i class="fas fa-home"></i> ${username}/${repo}</a>`;
-        html += `<span class="separator">/</span>`;
-        let currentPath = '';
-        for (let i = 0; i < pathParts.length; i++) {
-          currentPath += pathParts[i] + '/';
-          html += `<a href="javascript:void(0)" data-path="${currentPath}">${pathParts[i]}</a>`;
-          if (i < pathParts.length - 1) html += `<span class="separator">/</span>`;
-        }
-        html += '</div>';
-      } else {
-        html += `<div class="breadcrumb"><a href="javascript:void(0)" data-path=""><i class="fas fa-home"></i> ${username}/${repo}</a></div>`;
-      }
-
-      // 视图切换
-      html += `<div class="view-options">
-        <div class="view-option ${currentView === 'grid' ? 'active' : ''}" data-view="grid"><i class="fas fa-th"></i> 网格视图</div>
-        <div class="view-option ${currentView === 'list' ? 'active' : ''}" data-view="list"><i class="fas fa-list"></i> 列表视图</div>
-      </div>`;
-
-      if (currentView === 'grid') {
-        html += '<div class="file-grid">';
-        if (path) {
-          const parentPath = path.split('/').slice(0, -1).join('/');
-          html += `<div class="file-item" data-path="${parentPath}" data-type="dir">
-            <div class="file-thumbnail"><i class="fas fa-level-up-alt file-icon"></i></div>
-            <div class="file-name">上级目录</div></div>`;
-        }
-        directories.forEach(item => {
-          html += `<div class="file-item" data-path="${item.path}" data-type="${item.type}">
-            <div class="file-thumbnail"><i class="fas fa-folder file-icon folder-icon"></i></div>
-            <div class="file-name">${item.name}</div>
-            <div class="file-size">文件夹</div></div>`;
-        });
-        fileItems.forEach(item => {
-          const isImage = isImageFile(item.name);
-          const rawUrl = `https://raw.githubusercontent.com/${username}/${repo}/main/${item.path}`;
-          html += `<div class="file-item" data-path="${item.path}" data-type="${item.type}" data-url="${item.html_url}">
-            <div class="file-thumbnail">
-              ${isImage ? `<img src="${rawUrl}" alt="${item.name}" loading="lazy" onclick="event.stopPropagation(); previewImageFromPath('${item.path}')" onerror="this.style.display='none'">` :
-              `<i class="fas fa-file file-icon"></i>`}
+    <!-- 顶部导航 -->
+    <nav class="fixed w-full top-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-sm">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <img id="nav-avatar" src="touxiang.jpg" alt="Kima" class="w-8 h-8 rounded-full border-2 border-white dark:border-gray-700 shadow-sm">
+                <span id="nav-name" class="font-bold text-lg">Kima</span>
             </div>
-            <div class="file-name">${item.name}</div>
-            <div class="file-size">${formatFileSize(item.size)}</div>
-            <div class="file-actions">
-              <div class="file-action" title="下载" onclick="event.stopPropagation(); downloadFile('${item.name}', '${rawUrl}')"><i class="fas fa-download"></i></div>
-              ${isImage ? `<div class="file-action" title="查看大图" onclick="event.stopPropagation(); previewImageFromPath('${item.path}')"><i class="fas fa-expand"></i></div>` : ''}
-            </div></div>`;
-        });
-        html += '</div>';
-      } else {
-        html += `<table class="file-list-view"><thead>
-        <tr><th>名称</th><th>大小</th><th>类型</th><th>操作</th></tr>
-        </thead><tbody>`;
-        if (path) {
-          const parentPath = path.split('/').slice(0, -1).join('/');
-          html += `<tr class="file-item" data-path="${parentPath}" data-type="dir">
-            <td><div class="file-list-name"><i class="fas fa-level-up-alt"></i><span>上级目录</span></div></td><td>-</td><td>文件夹</td><td></td></tr>`;
+            <div class="flex items-center space-x-4">
+                <a href="https://github.com/aydin0118" target="_blank" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                    <i class="fa-solid fa-columns text-gray-700 dark:text-gray-300"></i>
+                </a>
+                <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                    <i class="fa-solid fa-moon dark:hidden text-gray-700"></i>
+                    <i class="fa-solid fa-sun hidden dark:block text-yellow-400"></i>
+                </button>
+                <button id="nav-home" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors bg-gray-200 dark:bg-gray-700">
+                    <i class="fa fa-home text-gray-700 dark:text-gray-300"></i>
+                </button>
+                <button id="nav-photo" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                    <i class="fa fa-images text-gray-700 dark:text-gray-300"></i>
+                </button>
+                <a href="https://github.com/kima1202" target="_blank" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                    <i class="fa-brands fa-github text-xl"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ========== 主页 ========== -->
+    <div id="page-home" class="container mx-auto px-4 pt-24 pb-16">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- 左栏 -->
+            <div class="lg:col-span-1 animate-fade-in">
+                <div class="glass-panel rounded-2xl shadow-xl p-6 card-hover">
+                    <div class="flex justify-center mb-6">
+                        <img id="avatar" src="touxiang.jpg" class="w-36 h-36 rounded-full border-4 border-white dark:border-gray-700 shadow-lg avatar-glow">
+                    </div>
+                    <div class="text-center mb-6">
+                        <h1 id="display-name" class="text-2xl font-bold mb-2">Kima</h1>
+                        <p id="display-bio" class="text-gray-600 dark:text-gray-400 mb-4">wait for you...</p>
+                        <a id="github-btn" href="https://github.com/kima1202" target="_blank"
+                           class="inline-flex items-center px-4 py-2 rounded-full bg-gradient-custom text-white font-medium hover:opacity-90 transition-opacity">
+                            <i class="fa-brands fa-github mr-2"></i>访问我的 GitHub
+                        </a>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-100 dark:bg-gray-700 rounded-xl p-4 text-center">
+                            <div id="repo-count" class="text-2xl font-bold text-primary dark:text-primary-dark mb-1">-</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">总仓库数</div>
+                        </div>
+                        <div class="bg-gray-100 dark:bg-gray-700 rounded-xl p-4 text-center">
+                            <div id="star-count" class="text-2xl font-bold text-secondary dark:text-secondary-dark mb-1">-</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">总 Stars</div>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <h3 class="text-lg font-semibold mb-3">技术栈</h3>
+                        <div id="tech-stack" class="flex flex-wrap gap-2">
+                            <span class="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-500 rounded-full text-sm">加载中...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-panel rounded-2xl shadow-xl p-6 mt-6 card-hover animate-fade-in">
+                    <h3 class="text-lg font-semibold mb-3">活动预览</h3>
+                    <div id="activityPreview" class="h-64 overflow-auto p-3">
+                        <p class="text-gray-500">正在加载活动预览...</p>
+                    </div>
+                </div>
+            </div>
+            <!-- 右栏 -->
+            <div class="lg:col-span-2">
+                <div class="glass-panel rounded-2xl shadow-xl p-6">
+                    <h2 class="text-2xl font-bold mb-4 flex items-center">
+                        <i class="fa-solid fa-file-lines text-primary dark:text-primary-dark mr-2"></i>个人介绍
+                    </h2>
+                    <div id="readme-content" class="max-w-none"><p class="text-gray-500">正在加载内容...</p></div>
+                </div>
+                <div class="glass-panel rounded-2xl shadow-xl p-6 mt-6 card-hover animate-fade-in">
+                    <h2 class="text-2xl font-bold mb-4 flex items-center">
+                        <i class="fa-solid fa-folder-open text-primary dark:text-primary-dark mr-2"></i>最近项目
+                    </h2>
+                    <div id="recent-repos" class="space-y-4"><div class="text-center text-gray-500 py-6"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><p>加载中...</p></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 照片空间 ========== -->
+    <div id="page-photo" class="container mx-auto px-4 pt-24 pb-16" style="display:none;">
+        <div class="glass-panel rounded-2xl shadow-xl p-6">
+            <h2 class="text-2xl font-bold mb-4 flex items-center">
+                <i class="fa-solid fa-images text-primary dark:text-primary-dark mr-2"></i>照片空间
+            </h2>
+            <div style="display:flex;gap:10px;margin:15px 0 20px 0;">
+                <input type="text" id="repo-input" placeholder="输入GitHub仓库地址，例如: https://github.com/username/repository" value="https://github.com/kima1202/picture" style="flex:1;padding:11px 15px;font-size:16px;border:2px solid #e5e6eb;border-radius:8px;background:#f5f7fa;">
+                <button id="load-btn" style="background:#6a11cb;color:white;border:none;padding:11px 23px;font-size:16px;border-radius:8px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:8px;">
+                    <i class="fas fa-folder-open"></i> 加载仓库
+                </button>
+            </div>
+            <div id="photo-area">
+                <div class="pload"><i class="fas fa-spinner fa-spin"></i><p>正在加载默认仓库图片...</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="glass-panel shadow-inner py-6">
+        <div class="container mx-auto px-4 text-center text-gray-600 dark:text-gray-400">
+            <p>&copy; 2025 - 2026 Kima. 个人主页由 Tailwind CSS 驱动。</p>
+            <div class="mt-3 space-x-4">
+                <a href="https://github.com/kima1202" target="_blank" class="hover:text-primary transition-colors"><i class="fa-brands fa-github"></i></a>
+                <a href="mailto:2406265572@qq.com" class="hover:text-primary transition-colors"><i class="fa-solid fa-envelope"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 大图模态框 -->
+    <div id="img-modal" class="modal">
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <button class="modal-nav modal-prev" onclick="navImg(-1)"><i class="fas fa-chevron-left"></i></button>
+        <button class="modal-nav modal-next" onclick="navImg(1)"><i class="fas fa-chevron-right"></i></button>
+        <img class="modal-img" id="modal-img" alt="">
+        <div class="modal-cap" id="modal-cap"></div>
+    </div>
+
+    <script>
+    (function(){
+        var GITHUB_USER = 'kima1202';
+
+        /* ===== 主题 ===== */
+        var html = document.documentElement;
+        var saved = localStorage.getItem('theme');
+        if(saved==='dark') html.classList.add('dark');
+        else if(!saved && window.matchMedia('(prefers-color-scheme:dark)').matches) html.classList.add('dark');
+        document.getElementById('theme-toggle').onclick = function(){
+            html.classList.toggle('dark');
+            localStorage.setItem('theme', html.classList.contains('dark')?'dark':'light');
+        };
+
+        /* ===== 导航切换 ===== */
+        var pageHome = document.getElementById('page-home');
+        var pagePhoto = document.getElementById('page-photo');
+        var btnHome = document.getElementById('nav-home');
+        var btnPhoto = document.getElementById('nav-photo');
+        var footer = document.querySelector('footer');
+
+        function goHome(){
+            pageHome.style.display=''; pagePhoto.style.display='none'; footer.style.display='';
+            btnHome.classList.add('bg-gray-200','dark:bg-gray-700');
+            btnPhoto.classList.remove('bg-gray-200','dark:bg-gray-700');
         }
-        directories.forEach(item => {
-          html += `<tr class="file-item" data-path="${item.path}" data-type="${item.type}">
-            <td><div class="file-list-name"><i class="fas fa-folder folder-icon"></i><span>${item.name}</span></div></td>
-            <td>-</td><td>文件夹</td><td></td></tr>`;
-        });
-        fileItems.forEach(item => {
-          const isImage = isImageFile(item.name);
-          const fileType = isImage ? '图片' : getFileType(item.name);
-          const rawUrl = `https://raw.githubusercontent.com/${username}/${repo}/main/${item.path}`;
-          html += `<tr class="file-item" data-path="${item.path}" data-type="${item.type}" data-url="${item.html_url}">
-            <td>
-              <div class="file-list-name">
-                ${isImage ? `<img src="${rawUrl}" alt="${item.name}" class="list-thumbnail" onclick="event.stopPropagation(); previewImageFromPath('${item.path}')">` :
-                  `<i class="fas fa-file file-icon"></i>`}
-                <span>${item.name}</span>
-              </div></td>
-            <td>${formatFileSize(item.size)}</td>
-            <td>${fileType}</td>
-            <td><div class="file-list-actions">
-              <div class="file-list-action" onclick="event.stopPropagation(); downloadFile('${item.name}', '${rawUrl}')"><i class="fas fa-download"></i> 下载</div>
-              ${isImage ? `<div class="file-list-action" onclick="event.stopPropagation(); previewImageFromPath('${item.path}')"><i class="fas fa-expand"></i> 查看大图</div>` : ''}
-            </div></td>
-          </tr>`;
-        });
-        html += '</tbody></table>';
-      }
+        function goPhoto(){
+            pagePhoto.style.display=''; pageHome.style.display='none'; footer.style.display='';
+            btnPhoto.classList.add('bg-gray-200','dark:bg-gray-700');
+            btnHome.classList.remove('bg-gray-200','dark:bg-gray-700');
 
-      contentArea.innerHTML = html;
-      contentArea.querySelectorAll('.file-item').forEach(item => {
-        item.addEventListener('click', function() {
-          const itemPath = this.getAttribute('data-path');
-          const itemType = this.getAttribute('data-type');
-          if (itemType === 'dir') loadRepoContents(username, repo, itemPath);
-          else if (!isImageFile(itemPath)) {
-            fetch(`https://api.github.com/repos/${username}/${repo}/contents/${itemPath}`)
-              .then(response => response.json())
-              .then(fileData => {
-                displayFileContent(fileData, username, repo, itemPath);
-              }).catch(error => { showError('无法加载文件内容: ' + error.message); });
-          }
-        });
-      });
-      contentArea.querySelectorAll('.view-option').forEach(option => {
-        option.addEventListener('click', function() {
-          currentView = this.getAttribute('data-view');
-          displayFileList(files, username, repo, path);
-        });
-      });
-      contentArea.querySelectorAll('.breadcrumb a[data-path]').forEach(link => {
-        link.addEventListener('click', function() {
-          loadRepoContents(username, repo, this.getAttribute('data-path'));
-        });
-      });
-    }
-    function displayFileContent(fileData, username, repo, path) {
-      const content = atob((fileData.content || '').replace(/\s/g, ''));
-      const pathParts = path.split('/').filter(Boolean);
-      let breadcrumbHtml = '<div class="breadcrumb">';
-      breadcrumbHtml += `<a href="javascript:void(0)" data-path=""><i class="fas fa-home"></i> ${username}/${repo}</a>`;
-      breadcrumbHtml += `<span class="separator">/</span>`;
-      let currentPath = '';
-      for (let i = 0; i < pathParts.length - 1; i++) {
-        currentPath += pathParts[i] + '/';
-        breadcrumbHtml += `<a href="javascript:void(0)" data-path="${currentPath}">${pathParts[i]}</a>`;
-        breadcrumbHtml += `<span class="separator">/</span>`;
-      }
-      breadcrumbHtml += `${pathParts[pathParts.length - 1]}</div>`;
-      const parentPath = path.split('/').slice(0, -1).join('/');
-      const backButton = `<a href="javascript:void(0)" class="back-button" data-path="${parentPath}"><i class="fas fa-arrow-left"></i> 返回</a>`;
-      const downloadButton = `<button onclick="downloadFile('${pathParts[pathParts.length - 1]}', 'https://raw.githubusercontent.com/${username}/${repo}/main/${path}')" style="margin:5px 0 17px 10px;"><i class="fas fa-download"></i> 下载</button>`;
-
-      let fileContent = '';
-      if (isImageFile(path)) {
-        const imageUrl = `https://raw.githubusercontent.com/${username}/${repo}/main/${path}`;
-        fileContent = `<div class="image-preview" style="text-align:center;margin:30px 0;">
-              <img src="${imageUrl}" alt="${path}" style="max-width:98%;max-height:470px;border-radius:8px;box-shadow:0 4px 15px #e8edf7;">
-            </div>`;
-      } else if (isTextFile(path)) {
-        fileContent = `<div class="file-content">
-              <h3 style="margin: 0 0 16px 0;">${pathParts[pathParts.length - 1]}</h3>
-              <div class="code-content"><pre>${escapeHtml(content)}</pre></div>
-            </div>`;
-      } else {
-        fileContent = `<div class="file-content">
-              <h3>${pathParts[pathParts.length - 1]}</h3>
-              <p style="color:#b24a33;">该文件为二进制，无法直接预览。</p>
-            </div>`;
-      }
-      contentArea.innerHTML = backButton + breadcrumbHtml + downloadButton + fileContent;
-      contentArea.querySelector('.back-button').addEventListener('click', function() {
-        loadRepoContents(username, repo, this.getAttribute('data-path'));
-      });
-      contentArea.querySelectorAll('.breadcrumb a[data-path]').forEach(link => {
-        link.addEventListener('click', function() {
-          loadRepoContents(username, repo, this.getAttribute('data-path'));
-        });
-      });
-    }
-    // 图片大图预览逻辑
-    window.previewImageFromPath = function(imagePath) {
-      const imageIndex = currentImages.findIndex(img => img.path === imagePath);
-      if (imageIndex !== -1) {
-        previewImage(imageIndex);
-      } else {
-        const imageUrl = `https://raw.githubusercontent.com/${currentUsername}/${currentRepo}/main/${imagePath}`;
-        modalImage.src = imageUrl;
-        modalCaption.textContent = imagePath;
-        imageModal.style.display = 'block';
-        document.body.style.overflow = 'hidden';
-      }
-    }
-    function previewImage(index) {
-      currentImageIndex = index;
-      const image = currentImages[index];
-      modalImage.style.opacity = '0';
-      const img = new Image();
-      img.onload = function() {
-        modalImage.src = img.src;
-        modalImage.style.opacity = '1';
-      };
-      img.src = image.downloadUrl;
-      modalCaption.textContent = `${image.name} (${formatFileSize(image.size)})`;
-      imageModal.style.display = 'block';
-      document.body.style.overflow = 'hidden';
-      preloadAdjacentImages(index);
-    }
-    function preloadAdjacentImages(index) {
-      [index - 1, index + 1].forEach(i => {
-        if (i >= 0 && i < currentImages.length) {
-          const link = document.createElement('link');
-          link.rel = 'prefetch';
-          link.href = currentImages[i].downloadUrl;
-          document.head.appendChild(link);
+            setTimeout(function(){
+                document.getElementById('load-btn').click();
+            }, 100);
         }
-      });
-    }
-    function closeModal() {
-      imageModal.style.display = 'none';
-      document.body.style.overflow = '';
-    }
-    function navigateImage(direction) {
-      currentImageIndex += direction;
-      if (currentImageIndex < 0) currentImageIndex = currentImages.length - 1;
-      else if (currentImageIndex >= currentImages.length) currentImageIndex = 0;
-      const image = currentImages[currentImageIndex];
-      modalImage.style.opacity = '0';
-      const img = new Image();
-      img.onload = function() {
-        modalImage.src = img.src;
-        modalImage.style.opacity = '1';
-      };
-      img.src = image.downloadUrl;
-      modalCaption.textContent = `${image.name} (${formatFileSize(image.size)})`;
-      preloadAdjacentImages(currentImageIndex);
-    }
-    // 模态事件
-    modalClose.onclick = closeModal;
-    modalPrev.onclick = () => navigateImage(-1);
-    modalNext.onclick = () => navigateImage(1);
-    imageModal.onclick = (e) => { if (e.target === imageModal) closeModal(); }
+        btnHome.onclick = goHome;
+        btnPhoto.onclick = goPhoto;
 
-    // 辅助函数
-    window.downloadFile = function(filename, url) {
-      const a = document.createElement('a');
-      a.href = url; a.download = filename; a.style.display = 'none';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    };
-    function isImageFile(name) { return /\.(jpe?g|png|webp|bmp|gif|svg)$/i.test(name); }
-    function isTextFile(name) { return /\.(md|txt|js|py|json|html|css|c|java|go|sh|yaml?)$/i.test(name); }
-    function getFileType(name) {
-      if (isImageFile(name)) return '图片';
-      if (isTextFile(name)) return '文本';
-      return '文件';
-    }
-    function formatFileSize(bytes) {
-      if (bytes == null) return '-';
-      if (bytes < 1024) return `${bytes} B`;
-      if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`;
-      if (bytes < 1073741824) return `${(bytes / 1048576).toFixed(2)} MB`;
-      return `${(bytes / 1073741824).toFixed(2)} GB`;
-    }
-    function escapeHtml(text) {
-      return text
-        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-    }
-  </script>
+        /* ===== GitHub 数据 ===== */
+        fetch('https://api.github.com/users/'+GITHUB_USER).then(function(r){return r.json();}).then(function(d){
+            if(d.avatar_url){ document.getElementById('avatar').src=d.avatar_url; document.getElementById('nav-avatar').src=d.avatar_url; }
+            if(d.name){ document.getElementById('display-name').textContent=d.name; document.getElementById('nav-name').textContent=d.name; }
+            if(d.bio) document.getElementById('display-bio').textContent=d.bio;
+            document.getElementById('repo-count').textContent = d.public_repos||0;
+        }).catch(function(){});
+
+        fetch('https://api.github.com/users/'+GITHUB_USER+'/repos?sort=updated&per_page=10').then(function(r){return r.json();}).then(function(repos){
+            var totalStars=0, langCount={};
+            repos.forEach(function(r){ totalStars+=r.stargazers_count||0; if(r.language) langCount[r.language]=(langCount[r.language]||0)+1; });
+            document.getElementById('star-count').textContent=totalStars;
+            var sorted=Object.entries(langCount).sort(function(a,b){return b[1]-a[1];}).slice(0,8);
+            var colorMap={JavaScript:'#f7df1e',Python:'#3572A5',HTML:'#e34c26',CSS:'#563d7c',Java:'#b07219',Go:'#00ADD8',TypeScript:'#3178c6',Shell:'#89e051','Jupyter Notebook':'#DA5B0B'};
+            var nameMap={JavaScript:'JavaScript',Python:'Python',HTML:'HTML',CSS:'CSS',Java:'Java',Go:'Go',TypeScript:'TypeScript',Shell:'Shell','Jupyter Notebook':'Notebook'};
+            var techDiv=document.getElementById('tech-stack');
+            if(sorted.length>0){
+                techDiv.innerHTML=sorted.map(function(kv){
+                    var lang=kv[0], bg=colorMap[lang]||'#6b7280';
+                    return '<span style="padding:4px 12px;border-radius:999px;font-size:0.875rem;color:#fff;background:'+bg+';display:inline-flex;align-items:center;gap:4px;"><i class="fa-solid fa-code" style="font-size:12px;"></i>'+(nameMap[lang]||lang)+'</span>';
+                }).join('');
+            } else { techDiv.innerHTML='<span class="text-gray-400 text-sm">暂无数据</span>'; }
+            var reposDiv=document.getElementById('recent-repos');
+            if(repos.length===0){ reposDiv.innerHTML='<p class="text-center text-gray-500 py-6">暂无项目</p>'; return; }
+            reposDiv.innerHTML=repos.map(function(r){
+                var dt=r.pushed_at?r.pushed_at.slice(0,10):'未知';
+                return '<a href="'+r.html_url+'" target="_blank" class="block p-4 bg-gray-50 dark:bg-gray-700 rounded-xl repo-item hover:bg-gray-100 dark:hover:bg-gray-600 no-underline">'
+                    +'<div class="flex justify-between items-start mb-2"><h3 class="text-lg font-semibold text-primary dark:text-primary-dark">'+r.name+'</h3>'
+                    +'<span class="text-sm text-gray-500 flex items-center"><i class="fa-solid fa-star mr-1"></i>'+(r.stargazers_count||0)+'</span></div>'
+                    +'<p class="text-gray-600 dark:text-gray-400 text-sm mb-2">'+(r.description||'暂无描述')+'</p>'
+                    +'<div class="flex justify-between items-center text-xs text-gray-500"><span>'+(r.language||'未知')+'</span><span>更新于 '+dt+'</span></div></a>';
+            }).join('');
+        }).catch(function(){});
+
+        /* ===== Markdown ===== */
+        fetch('content.md').then(function(r){if(!r.ok)throw 0;return r.text();}).then(function(t){
+            document.getElementById('readme-content').innerHTML=marked.parse(t);
+        }).catch(function(){
+            document.getElementById('readme-content').innerHTML='<p class="text-gray-500">你好，我是 <strong>Kima</strong>。欢迎来到我的个人主页！</p>';
+        });
+
+        /* ===== 活动预览: 从 GitHub raw 文件读取并渲染为 Markdown ===== */
+        (function(){
+            var previewEl = document.getElementById('activityPreview');
+            if(!previewEl) return;
+            var rawUrl = 'https://raw.githubusercontent.com/kima1202/kima1202.github.io/main/01.md';
+            fetch(rawUrl).then(function(r){
+                if(!r.ok) throw new Error('无法获取活动文件 (status '+r.status+')');
+                return r.text();
+            }).then(function(md){
+                previewEl.innerHTML = marked.parse(md);
+            }).catch(function(err){
+                previewEl.innerHTML = '<p class="text-gray-500">活动预览加载失败：'+ (err && err.message ? escHtml(err.message) : '未知错误') +'</p>';
+            });
+        })();
+
+        /* ===== 照片空间 ===== */
+        var photoArea = document.getElementById('photo-area');
+        var modal = document.getElementById('img-modal');
+        var modalImg = document.getElementById('modal-img');
+        var modalCap = document.getElementById('modal-cap');
+        var curImgs=[], curIdx=0, curView='grid', curUser='', curRepo='', curPath='';
+
+        document.getElementById('load-btn').onclick = function(){
+            var url=document.getElementById('repo-input').value.trim();
+            if(!url) return photoErr('请输入GitHub仓库URL');
+            var m=url.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+            if(!m) return photoErr('无效的GitHub仓库URL');
+            loadRepo(m[1], m[2].replace(/\.git$/,''), '');
+        };
+
+        function photoErr(t){ photoArea.innerHTML='<div class="perr">'+t+'</div>'; }
+        function photoLoad(){ photoArea.innerHTML='<div class="pload"><i class="fas fa-spinner fa-spin"></i><p>加载中...</p></div>'; }
+
+        function loadRepo(user, repo, path){
+            photoLoad();
+            curUser=user; curRepo=repo; curPath = path || '';
+            fetch('https://api.github.com/repos/'+user+'/'+repo+'/contents/'+path)
+                .then(function(r){ if(!r.ok)throw new Error('无法访问仓库'); return r.json(); })
+                .then(function(d){ Array.isArray(d)?showList(d,user,repo,path):showFile(d,user,repo,path); })
+                .catch(function(e){ photoErr(e.message); });
+        }
+
+        function showList(files, user, repo, path){
+            var dirs=files.filter(function(i){return i.type==='dir';});
+            var fis=files.filter(function(i){return i.type==='file';});
+            var imgs=fis.filter(function(i){return isImg(i.name);});
+            var rawBase='https://raw.githubusercontent.com/'+user+'/'+repo+'/main/';
+            curImgs=imgs.map(function(img,i){
+                return Object.assign({
+                    idx:i,
+                    dl: img.download_url || (rawBase + img.path)
+                }, img);
+            });
+            var h='';
+            h+='<div class="breadcrumb">';
+            h+='<a onclick="ppGo(\''+user+'\',\''+repo+'\',\'\')"><i class="fas fa-home"></i> '+user+'/'+repo+'</a>';
+            if(path){
+                var pp=path.split('/').filter(Boolean), cp='';
+                h+='<span class="sep">/</span>';
+                pp.forEach(function(p,i){cp+=p+'/'; h+='<a onclick="ppGo(\''+user+'\',\''+repo+'\',\''+cp+'\')">'+p+'</a>'; if(i<pp.length-1)h+='<span class="sep">/</span>';});
+            }
+            h+='</div>';
+            h+='<div class="view-options">';
+            h+='<div class="view-opt'+(curView==='grid'?' active':'')+'" onclick="ppView(\'grid\')"><i class="fas fa-th"></i> 网格视图</div>';
+            h+='<div class="view-opt'+(curView==='list'?' active':'')+'" onclick="ppView(\'list\')"><i class="fas fa-list"></i> 列表视图</div>';
+            h+='</div>';
+            if(curView==='grid'){
+                h+='<div class="file-grid">';
+                if(path){ var pp2=path.split('/').slice(0,-1).join('/'); h+='<div class="file-item" onclick="ppGo(\''+user+'\',\''+repo+'\',\''+pp2+'\')"><div class="file-thumb"><i class="fas fa-level-up-alt ficon"></i></div><div class="fname">上级目录</div></div>'; }
+                dirs.forEach(function(d){ h+='<div class="file-item" onclick="ppGo(\''+user+'\',\''+repo+'\',\''+d.path+'\')"><div class="file-thumb"><i class="fas fa-folder ficon folder"></i></div><div class="fname">'+d.name+'</div><div class="fsize">文件夹</div></div>'; });
+                fis.forEach(function(item){
+                    var ii=isImg(item.name);
+                    var thumb = item.download_url || (rawBase + item.path);
+                    var dl = item.download_url || (rawBase + item.path);
+                    h+='<div class="file-item" onclick="'+(ii?"ppPreview(\''+item.path+'\')":"ppFile(\''+item.path+'\')")+'">';
+                    h+='<div class="file-thumb">'+(ii?'<img src="'+thumb+'" loading="lazy">':'<i class="fas fa-file ficon"></i>')+'</div>';
+                    h+='<div class="fname">'+item.name+'</div><div class="fsize">'+fmtSize(item.size)+'</div>';
+                    h+='<div class="fact"><div class="fabtn" title="下载" onclick="event.stopPropagation();ppDl(\''+item.name+'\',\''+dl+'\')"><i class="fas fa-download"></i></div>';
+                    if(ii)h+='<div class="fabtn" title="查看大图" onclick="event.stopPropagation();ppPreview(\''+item.path+'\')"><i class="fas fa-expand"></i></div>';
+                    h+='</div></div>';
+                });
+                h+='</div>';
+            } else {
+                h+='<table class="file-list"><thead><tr><th>名称</th><th>大小</th><th>类型</th><th>操作</th></tr></thead><tbody>';
+                if(path){ var pp3=path.split('/').slice(0,-1).join('/'); h+='<tr onclick="ppGo(\''+user+'\',\''+repo+'\',\''+pp3+'\')"><td><div class="flname"><i class="fas fa-level-up-alt"></i><span>上级目录</span></div></td><td>-</td><td>文件夹</td><td></td></tr>'; }
+                dirs.forEach(function(d){ h+='<tr onclick="ppGo(\''+user+'\',\''+repo+'\',\''+d.path+'\')"><td><div class="flname"><i class="fas fa-folder" style="color:#fcc940"></i><span>'+d.name+'</span></div></td><td>-</td><td>文件夹</td><td></td></tr>'; });
+                fis.forEach(function(item){
+                    var ii=isImg(item.name);
+                    var thumb = item.download_url || (rawBase + item.path);
+                    var dl = item.download_url || (rawBase + item.path);
+                    var ft=ii?'图片':fType(item.name);
+                    h+='<tr onclick="'+(ii?"ppPreview(\''+item.path+'\')":"ppFile(\''+item.path+'\')")+'">';
+                    h+='<td><div class="flname">'+(ii?'<img src="'+thumb+'" class="list-thumb">':'<i class="fas fa-file" style="color:#99b3e6"></i>')+'<span>'+item.name+'</span></div></td>';
+                    h+='<td>'+fmtSize(item.size)+'</td><td>'+ft+'</td>';
+                    h+='<td><div style="display:flex;gap:8px;"><div class="flact" onclick="event.stopPropagation();ppDl(\''+item.name+'\',\''+dl+'\')"><i class="fas fa-download"></i> 下载</div>';
+                    if(ii)h+='<div class="flact" onclick="event.stopPropagation();ppPreview(\''+item.path+'\')"><i class="fas fa-expand"></i> 大图</div>';
+                    h+='</div></td></tr>';
+                });
+                h+='</tbody></table>';
+            }
+            photoArea.innerHTML=h;
+        }
+
+        function showFile(fd, user, repo, path){
+            var content=atob((fd.content||'').replace(/\s/g,''));
+            var parts=path.split('/').filter(Boolean);
+            var h='';
+            var pp=path.split('/').slice(0,-1).join('/');
+            h+='<a class="bkbtn" onclick="ppGo(\''+user+'\',\''+repo+'\',\''+pp+'\')"><i class="fas fa-arrow-left"></i> 返回</a>';
+            h+='<div class="breadcrumb"><a onclick="ppGo(\''+user+'\',\''+repo+'\',\'\')"><i class="fas fa-home"></i> '+user+'/'+repo+'</a><span class="sep">/</span>';
+            var cp='';
+            for(var i=0;i<parts.length-1;i++){cp+=parts[i]+'/'; h+='<a onclick="ppGo(\''+user+'\',\''+repo+'\',\''+cp+'\')">'+parts[i]+'</a><span class="sep">/</span>';}
+            h+=parts[parts.length-1]+'</div>';
+            var downloadUrl = fd.download_url || ('https://raw.githubusercontent.com/'+user+'/'+repo+'/main/'+path);
+            h+='<button onclick="ppDl(\''+parts[parts.length-1]+'\',\''+downloadUrl+'\')" style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;background:#6a11cb;color:white;border:none;border-radius:8px;cursor:pointer;margin-bottom:17px;font-weight:500;"><i class="fas fa-download"></i> 下载</button>';
+            if(isImg(path)){
+                var imgUrl = fd.download_url || ('https://raw.githubusercontent.com/'+user+'/'+repo+'/main/'+path);
+                h+='<div style="text-align:center;margin:30px 0;"><img src="'+imgUrl+'" style="max-width:98%;max-height:470px;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,0.2);"></div>';
+            } else if(isTxt(path)){
+                h+='<h3 style="font-size:1.25rem;font-weight:bold;margin-bottom:16px;">'+parts[parts.length-1]+'</h3>';
+                h+='<pre style="background:#1a1a2e;color:#e0e0e0;padding:1em;border-radius:8px;overflow-x:auto;font-size:0.95em;">'+escHtml(content)+'</pre>';
+            } else {
+                h+='<h3 style="font-size:1.25rem;font-weight:bold;margin-bottom:8px;">'+parts[parts.length-1]+'</h3>';
+                h+='<p style="color:#cb2431;">该文件为二进制，无法直接预览。</p>';
+            }
+            photoArea.innerHTML=h;
+        }
+
+        window.ppGo = function(u,r,p){ loadRepo(u,r,p); };
+        window.ppView = function(v){ curView=v; loadRepo(curUser, curRepo, curPath); };
+        window.ppFile = function(path){
+            fetch('https://api.github.com/repos/'+curUser+'/'+curRepo+'/contents/'+path)
+                .then(function(r){return r.json();})
+                .then(function(d){showFile(d,curUser,curRepo,path);})
+                .catch(function(e){photoErr('无法加载: '+e.message);});
+        };
+        window.ppPreview = function(imgPath){
+            var found = -1;
+            if(Array.isArray(curImgs) && curImgs.length){
+                found = curImgs.findIndex(function(it){ return it.path === imgPath || it.name === imgPath; });
+            }
+            if(found !== -1){
+                curIdx = found;
+                var img = curImgs[curIdx];
+                modalImg.src = img.dl;
+                modalCap.textContent = img.name || img.path;
+            } else {
+                var raw = 'https://raw.githubusercontent.com/'+curUser+'/'+curRepo+'/main/'+imgPath;
+                modalImg.src = raw;
+                modalCap.textContent = imgPath;
+                curIdx = -1;
+            }
+            modal.style.display='block'; document.body.style.overflow='hidden';
+        };
+        window.ppDl = function(name,url){
+            var a=document.createElement('a'); a.href=url; a.download=name; a.style.display='none';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        };
+        window.closeModal = function(){ modal.style.display='none'; document.body.style.overflow=''; };
+        window.navImg = function(dir){
+            if(!Array.isArray(curImgs) || curImgs.length === 0) return;
+            if(typeof curIdx !== 'number' || curIdx < 0 || curIdx >= curImgs.length) curIdx = 0;
+            curIdx += dir;
+            if(curIdx < 0) curIdx = curImgs.length - 1;
+            if(curIdx >= curImgs.length) curIdx = 0;
+            var img = curImgs[curIdx];
+            modalImg.src = img.dl;
+            modalCap.textContent = (img.name || img.path) + (img.size ? ' (' + fmtSize(img.size) + ')' : '');
+        };
+        modal.onclick = function(e){ if(e.target===modal) closeModal(); };
+
+        function isImg(n){ return /\.(jpe?g|png|webp|bmp|gif|svg)$/i.test(n); }
+        function isTxt(n){ return /\.(md|txt|js|py|json|html|css|c|java|go|sh|yaml?)$/i.test(n); }
+        function fType(n){ return isImg(n)?'图片':isTxt(n)?'文本':'文件'; }
+        function fmtSize(b){ if(b==null)return '-';if(b<1024)return b+' B';if(b<1048576)return (b/1024).toFixed(1)+' KB';if(b<1073741824)return (b/1048576).toFixed(2)+' MB';return (b/1073741824).toFixed(2)+' GB'; }
+        function escHtml(t){ return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    })();
+    </script>
 </body>
 </html>
