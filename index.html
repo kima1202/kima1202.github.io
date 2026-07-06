@@ -23,7 +23,7 @@
     </script>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { transition: background-color 0.3s ease; background-color: #f9fafb; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { transition: background-color 0.3 ease; background-color: #f9fafb; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body.dark { background-color: #111827; }
 
         .bg-container { position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; overflow:hidden; }
@@ -36,21 +36,21 @@
             border:1px solid rgba(255,255,255,0.3); box-shadow:0 8px 32px 0 rgba(31,38,135,0.1);
             position:relative; overflow:hidden;
         }
-        .glass-panel::after { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,#6a11cb,transparent); animation:border-glow 4s ease-in-out infinite; }
-        .glass-panel::before { content:''; position:absolute; bottom:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,#2575fc,transparent); animation:border-glow 4s ease-in-out infinite reverse; }
+        .glass-panel::after { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,#6a11cb,transparent); animation:border-glow 4 ease-in-out infinite; }
+        .glass-panel::before { content:''; position:absolute; bottom:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,#2575fc,transparent); animation:border-glow 4 ease-in-out infinite reverse; }
         .dark .glass-panel::after { background:linear-gradient(90deg,transparent,#a855f7,transparent); }
         .dark .glass-panel::before { background:linear-gradient(90deg,transparent,#60a5fa,transparent); }
         .dark .glass-panel { background:rgba(17,24,39,0.6); border:1px solid rgba(255,255,255,0.1); box-shadow:0 8px 32px 0 rgba(0,0,0,0.3); }
         @keyframes border-glow { 0%,100%{opacity:0.3;} 50%{opacity:1;} }
 
         .bg-gradient-custom { background:linear-gradient(135deg,#6a11cb,#2575fc); }
-        .avatar-glow { animation:glow 3s ease-in-out infinite alternate; }
+        .avatar-glow { animation:glow 3 ease-in-out infinite alternate; }
         @keyframes glow { from{box-shadow:0 0 5px rgba(106,17,203,0.3);} to{box-shadow:0 0 20px rgba(106,17,203,0.8);} }
-        .card-hover { transition:all 0.3s ease; }
+        .card-hover { transition:all 0.3 ease; }
         .card-hover:hover { transform:translateY(-5px); box-shadow:0 20px 25px -5px rgba(0,0,0,0.1),0 10px 10px -5px rgba(0,0,0,0.04); }
-        .animate-fade-in { animation:fadeIn 0.8s ease-in; }
+        .animate-fade-in { animation:fadeIn 0.8 ease-in; }
         @keyframes fadeIn { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
-        .repo-item { transition:all 0.3s ease; }
+        .repo-item { transition:all 0.3 ease; }
         .repo-item:hover { transform:translateX(5px); }
         .tech-icon { filter:drop-shadow(0 0 5px rgba(106,17,203,0.5)); }
 
@@ -77,21 +77,21 @@
         .breadcrumb a:hover { text-decoration:underline; }
         .breadcrumb .sep { color:#adb1ba; }
         .view-options { display:flex; gap:10px; margin-bottom:18px; }
-        .view-opt { background:#f2f6fe; border:1px solid #e3e7ed; border-radius:6px; padding:8px 16px; cursor:pointer; font-weight:500; color:#586a92; transition:background 0.12s; }
+        .view-opt { background:#f2f6fe; border:1px solid #e3e7ed; border-radius:6px; padding:8px 16px; cursor:pointer; font-weight:500; color:#586a92; transition:background 0.12; }
         .view-opt.active, .view-opt:hover { background:#dbeafe; border-color:#6a11cb; color:#6a11cb; }
         .file-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:14px; }
-        .file-item { background:#fafbfc; border:1px solid #e5e6eb; border-radius:12px; padding:13px; transition:box-shadow 0.14s,border 0.12s,transform 0.13s; cursor:pointer; position:relative; overflow:hidden; box-shadow:0 2px 8px rgba(30,40,90,0.06); min-height:90px; display:flex; flex-direction:column; align-items:center; }
+        .file-item { background:#fafbfc; border:1px solid #e5e6eb; border-radius:12px; padding:13px; transition:box-shadow 0.14,border 0.12,transform 0.13; cursor:pointer; position:relative; overflow:hidden; box-shadow:0 2px 8px rgba(30,40,90,0.06); min-height:90px; display:flex; flex-direction:column; align-items:center; }
         .file-item:hover { box-shadow:0 4px 18px rgba(30,40,90,0.06); border-color:#6a11cb; transform:translateY(-2px) scale(1.03); }
         .file-thumb { width:98%; height:140px; object-fit:cover; border-radius:6px; background:#e7eaf2; margin-bottom:11px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-        .file-thumb img { width:100%; height:100%; object-fit:cover; border-radius:6px; border:1px solid #e2e4ec; transition:box-shadow 0.11s,transform 0.13s; }
+        .file-thumb img { width:100%; height:100%; object-fit:cover; border-radius:6px; border:1px solid #e2e4ec; transition:box-shadow 0.11,transform 0.13; }
         .file-item:hover .file-thumb img { border-color:#6a11cb; box-shadow:0 4px 16px rgba(189,214,250,0.27); transform:scale(1.04); }
         .ficon { font-size:27px; margin-bottom:8px; color:#99b3e6; }
         .ficon.folder { color:#fcc940; }
         .fname { font-weight:600; font-size:1rem; margin-bottom:3px; color:#1d2a48; word-break:break-all; text-align:center; }
         .fsize { color:#a1a9bb; font-size:13px; }
-        .fact { position:absolute; top:10px; right:10px; display:flex; gap:8px; opacity:0; transition:opacity 0.13s; }
+        .fact { position:absolute; top:10px; right:10px; display:flex; gap:8px; opacity:0; transition:opacity 0.13; }
         .file-item:hover .fact { opacity:1; }
-        .fabtn { background:#e3e8f0; border:1px solid #e1e5ee; border-radius:4px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#4e6a95; transition:background 0.13s,color 0.13s; }
+        .fabtn { background:#e3e8f0; border:1px solid #e1e5ee; border-radius:4px; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#4e6a95; transition:background 0.13,color 0.13; }
         .fabtn:hover { background:#6a11cb; color:#fff; }
         .list-thumb { width:48px; height:48px; object-fit:cover; border-radius:3px; margin-right:8px; border:1px solid #e6eefd; }
         .file-list { width:100%; border-collapse:collapse; }
@@ -99,9 +99,9 @@
         .file-list th { background:#f1f5fa; font-weight:600; font-size:0.99rem; }
         .file-list tr:hover { background:#f7faff; }
         .flname { display:flex; align-items:center; gap:6px; }
-        .flact { padding:5.5px 10px; background:#e3e8f0; border:1px solid #e1e5ee; border-radius:4px; cursor:pointer; font-size:0.95rem; color:#4e6a95; font-weight:500; display:flex; align-items:center; gap:4px; transition:background 0.13s,color 0.13s; }
+        .flact { padding:5.5px 10px; background:#e3e8f0; border:1px solid #e1e5ee; border-radius:4px; cursor:pointer; font-size:0.95rem; color:#4e6a95; font-weight:500; display:flex; align-items:center; gap:4px; transition:background 0.13,color 0.13; }
         .flact:hover { background:#6a11cb; color:#fff; }
-        .bkbtn { display:inline-flex; align-items:center; gap:8px; margin-bottom:18px; padding:9px 15px; background:#eef5fe; color:#6a11cb; text-decoration:none; border-radius:6px; border:1px solid #e2e8f5; font-size:0.99rem; transition:background 0.12s; cursor:pointer; }
+        .bkbtn { display:inline-flex; align-items:center; gap:8px; margin-bottom:18px; padding:9px 15px; background:#eef5fe; color:#6a11cb; text-decoration:none; border-radius:6px; border:1px solid #e2e8f5; font-size:0.99rem; transition:background 0.12; cursor:pointer; }
         .bkbtn:hover { background:#ccdffe; color:#293964; }
         .perr { color:#cb2431; background:#fff3f1; border-radius:6px; border:1.3px solid #ffd4cf; padding:13px 17px; margin-bottom:18px; font-size:1.08rem; }
         .pload { text-align:center; padding:38px 0; color:#8da1c5; font-size:17px; }
@@ -215,7 +215,7 @@
                 <i class="fa-solid fa-images text-primary dark:text-primary-dark mr-2"></i>照片空间
             </h2>
             <div style="display:flex;gap:10px;margin:15px 0 20px 0;">
-                <input type="text" id="repo-input" placeholder="输入GitHub仓库地址，例如: https://github.com/username/repository" value="https://github.com/kima1202/picture" style="flex:1;padding:11px 15px;font-size:16px;border:2px solid #e5e6eb;border-radius:8px;background:#f5f7fa;">
+                <input type="text" id="repo-input" placeholder="输入GitHub仓库地址，例如: https://github.com/username/repository" value="https://github.com/whereyy/z-z" style="flex:1;padding:11px 15px;font-size:16px;border:2px solid #e5e6eb;border-radius:8px;background:#f5f7fa;">
                 <button id="load-btn" style="background:#6a11cb;color:white;border:none;padding:11px 23px;font-size:16px;border-radius:8px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:8px;">
                     <i class="fas fa-folder-open"></i> 加载仓库
                 </button>
@@ -229,7 +229,7 @@
     <!-- 页脚 -->
     <footer class="glass-panel shadow-inner py-6">
         <div class="container mx-auto px-4 text-center text-gray-600 dark:text-gray-400">
-            <p>&copy; 2025 - 2026 Kima. 个人主页由 Tailwind CSS 驱动。</p>
+            <p>&copy; 2025 - 2026 Kima. 个人主页Aydin0118"M"</p>
             <div class="mt-3 space-x-4">
                 <a href="https://github.com/kima1202" target="_blank" class="hover:text-primary transition-colors"><i class="fa-brands fa-github"></i></a>
                 <a href="mailto:2406265572@qq.com" class="hover:text-primary transition-colors"><i class="fa-solid fa-envelope"></i></a>
@@ -319,7 +319,7 @@
         }).catch(function(){});
 
         /* ===== Markdown ===== */
-        fetch('content.md').then(function(r){if(!r.ok)throw 0;return r.text();}).then(function(t){
+        fetch('conent.md').then(function(r){if(!r.ok)throw 0;return r.text();}).then(function(t){
             document.getElementById('readme-content').innerHTML=marked.parse(t);
         }).catch(function(){
             document.getElementById('readme-content').innerHTML='<p class="text-gray-500">你好，我是 <strong>Kima</strong>。欢迎来到我的个人主页！</p>';
