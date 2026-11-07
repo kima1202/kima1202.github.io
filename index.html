@@ -180,7 +180,7 @@
                     <div class="text-center mb-6">
                         <h1 id="display-name" class="text-2xl font-bold mb-2">Kima</h1>
                         <p id="display-bio" class="text-gray-600 dark:text-gray-400 mb-4">wait for you...</p>
-                        <div class="bd-ribbon-wrap mb-2"><span class="birthday-ribbon">🎉 12.02 生日快乐 🎂</span></div>
+                        <div class="bd-ribbon-wrap mb-2"><span class="birthday-ribbon">🎉 小猪猪 生日快乐 🎂</span></div>
                         <a id="github-btn" href="https://github.com/kima1202" target="_blank"
                            class="inline-flex items-center px-4 py-2 rounded-full bg-gradient-custom text-white font-medium hover:opacity-90 transition-opacity">
                             <i class="fa-brands fa-github mr-2"></i>访问我的 GitHub
@@ -204,9 +204,9 @@
                     </div>
                 </div>
                 <div class="glass-panel rounded-2xl shadow-xl p-6 mt-6 card-hover animate-fade-in">
-                    <h3 class="text-lg font-semibold mb-3">活动预览</h3>
+                    <h3 class="text-lg font-semibold mb-3">Activities</h3>
                     <div id="activityPreview" class="h-64 overflow-auto p-3">
-                        <p class="text-gray-500">正在加载活动预览...</p>
+                        <p class="text-gray-500">正在加载...</p>
                     </div>
                 </div>
             </div>
@@ -528,7 +528,7 @@
     <script>
     (function(){
         // 1202 生日主题开关：BIRTHDAY_FORCE=true 始终展示；改 false 则仅生日前后自动展示
-        var BIRTHDAY_FORCE = false;
+        var BIRTHDAY_FORCE = false ;
         function isActive(){
             if(BIRTHDAY_FORCE) return true;
             var d = new Date(), m = d.getMonth(), day = d.getDate(); // 生日 12月2日
